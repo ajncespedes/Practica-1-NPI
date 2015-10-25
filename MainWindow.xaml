@@ -20,13 +20,14 @@
         <Image Grid.Row="0" Source="Images\Logo.png" HorizontalAlignment="Left" Stretch="Fill" Height="32" Width="81" Margin="0 10 0 5" />
         <TextBlock Grid.Row="0" Margin="0,0,42,0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="18">Práctica 1 NPI</TextBlock>
         <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
+        <Image x:Name="position" Grid.Row="1" Source="Images\wrong.png" Stretch="None" HorizontalAlignment="Center" Margin="865,85,274,373" />
+        <Image x:Name="posture" Grid.Row="1" Source="Images\wrong.png" Stretch="None" HorizontalAlignment="Center" Margin="1078,85,61,373" />
         <TextBlock Grid.Row="1" Margin="0,25,237,553" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="40" Height="80" Width="199">Posición</TextBlock>
-        <Image x:Name="position" Grid.Row="1" Source="Images\wrong.png" Stretch="None" HorizontalAlignment="Center" Margin="806,85,266,373" />
-        <Image x:Name="posture" Grid.Row="1" Source="Images\wrong.png" Stretch="None" HorizontalAlignment="Center" Margin="1030,85,42,373" />
-
         <TextBlock Grid.Row="1" Margin="0,25,10,553" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="40" Height="80" Width="200">Postura</TextBlock>
-        <TextBlock Grid.Row="1" Margin="0,368,287,138" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="50" Height="152">Gestos</TextBlock>
-        <TextBox x:Name="gestureText" Grid.Row="1" Margin="0,368,125,182" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="50" Height="108">0</TextBox>
+
+        <TextBlock Grid.Row="1" Margin="0,314,286,192" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="50" Height="152" Width="229">Gestos</TextBlock>
+        <TextBlock x:Name="gestureText" Grid.Row="1" Margin="0,314,125,236" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="50" Height="108">0</TextBlock>
+        <TextBlock x:Name="advicesText" Grid.Row="1" Margin="0,412,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="40" Height="236" Width="505"><Run Text="¡Cuerpo no detectado!"/></TextBlock>
 
         <Viewbox Grid.Row="1" HorizontalAlignment="Left" >
             <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />

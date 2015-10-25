@@ -23,7 +23,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-
+        
         /// <summary>
         /// Floor center: coordinate X
         /// </summary>
@@ -374,7 +374,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     {
                         this.bodies = new Body[bodyFrame.BodyCount];
                     }
-
                     // The first time GetAndRefreshBodyData is called, Kinect will allocate each Body in the array.
                     // As long as those body objects are not disposed and not set to null in the array,
                     // those body objects will be re-used.
@@ -391,12 +390,17 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
 
                     int penIndex = 0;
+
+                    // Flag to detect only one body
+                    Boolean firstBody = false;
                     foreach (Body body in this.bodies)
                     {
                         Pen drawPen = this.bodyColors[penIndex++];
 
-                        if (body.IsTracked)
+                        if (body.IsTracked && firstBody == false)
                         {
+                            firstBody = true;
+
                             this.DrawClippedEdges(body, dc);
 
                             IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
@@ -444,10 +448,17 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                                 ////////////////////////////////////////////
                                 PositionDone = leftGoalB && rightGoalB;
+
+                                System.String imgPath = Path.GetFullPath(@"..\..\..\Images\good.png");
+                                position.Source = new BitmapImage(new Uri(imgPath));
+
                             }
                             //If the position is detected, start gesture recognition:
                             else
                             {
+                                System.String imgPath = Path.GetFullPath(@"..\..\..\Images\good.png");
+                                posture.Source = new BitmapImage(new Uri(imgPath));
+
                                 //Define gesture start point:
                                 Joint gesture_start = new Joint();
                                 gesture_start.Position.X = (float)FloorCenterX + 0.3f;
@@ -475,7 +486,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                                 {
                                     GestureEndB = this.DrawGesturePoint(gesture_end, joints[JointType.HandRight], dc);
                                     //Draw the line to help the user:
-                                    DepthSpacePoint gesture_start_depth = this.coordinateMapper.MapCameraPointToDepthSpace(gesture_start.Position);
+                                    DepthSpacePoint gesture_start_depth = this.coordinateMapper.MapCameraPointToDepthSpace(joints[JointType.HandRight].Position);
                                     Point gesture_start_2D = new Point(gesture_start_depth.X, gesture_start_depth.Y);
                                     DepthSpacePoint gesture_end_depth = this.coordinateMapper.MapCameraPointToDepthSpace(gesture_end.Position);
                                     Point gesture_end_2D = new Point(gesture_end_depth.X, gesture_end_depth.Y);
@@ -598,16 +609,21 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
 
 
-
+        /// <summary>
+        /// Draws an ellipse in the posture goal
+        /// </summary>
+        /// <param name="goal">position of the hand</param>
+        /// <param name="hand">position of the hand</param>
+        /// <param name="drawingContext">drawing context to draw to</param>
         private bool DrawGoal(Joint goal, Joint hand, DrawingContext drawingContext)
         {
-            // Creamos un factor para darle sensación de profundidad, cuanto más grande, más cerca
+            // New factor to give deep feeling being bigger or closer
             double ellipseSize = 2.0 / goal.Position.Z;
-            // Pasamos las coordenadas del mundo a coordenadas de pantalla
+            // Transform world coordinates to screen coordinates
             DepthSpacePoint depth_goal = this.coordinateMapper.MapCameraPointToDepthSpace(goal.Position);
             Point goal_2D = new Point(depth_goal.X, depth_goal.Y);
 
-            // Si la mano está dentro del objetivo, la elipse se dibuja verde
+            // If the hand is inside of the goal, the ellipse change it color to red
             if ((hand.Position.X < goal.Position.X + 0.05 && hand.Position.X > goal.Position.X - 0.05) &&
                 (hand.Position.Y < goal.Position.Y + 0.05 && hand.Position.Y > goal.Position.Y - 0.05) &&
                 (hand.Position.Z < goal.Position.Z + 0.05 && hand.Position.Z > goal.Position.Z - 0.05))
@@ -615,7 +631,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 drawingContext.DrawEllipse(this.goalReachedBrush, null, goal_2D, ellipseSize * HandSize, ellipseSize * HandSize);
                 return true;
             }
-            // Si no, se dibuja roja
+            // If not, the ellipse change it color to red
             else
             {
                 drawingContext.DrawEllipse(this.goalNotReachedBrush, null, goal_2D, ellipseSize * HandSize, ellipseSize * HandSize);
@@ -623,16 +639,21 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             return false;
         }
 
-
+        /// <summary>
+        /// Draws an ellipse in the gesture goal
+        /// </summary>
+        /// <param name="goal">position of the hand</param>
+        /// <param name="hand">position of the hand</param>
+        /// <param name="drawingContext">drawing context to draw to</param>
         private bool DrawGesturePoint(Joint goal, Joint hand, DrawingContext drawingContext)
         {
-            // Creamos un factor para darle sensación de profundidad, cuanto más grande, más cerca
+            // New factor to give deep feeling being bigger or closer
             double ellipseSize = 2.0 / goal.Position.Z;
-            // Pasamos las coordenadas del mundo a coordenadas de pantalla
+            // Transform world coordinates to screen coordinates
             DepthSpacePoint depth_goal = this.coordinateMapper.MapCameraPointToDepthSpace(goal.Position);
             Point goal_2D = new Point(depth_goal.X, depth_goal.Y);
 
-            // Si la mano está dentro del objetivo, devuelve true
+            // If the hand is inside of the goal, return true
             if ((hand.Position.X < goal.Position.X + 0.05 && hand.Position.X > goal.Position.X - 0.05) &&
                 (hand.Position.Y < goal.Position.Y + 0.05 && hand.Position.Y > goal.Position.Y - 0.05) &&
                 (hand.Position.Z < goal.Position.Z + 0.05 && hand.Position.Z > goal.Position.Z - 0.05))
@@ -640,7 +661,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 drawingContext.DrawEllipse(this.gesturePointBrush, null, goal_2D, ellipseSize * HandSize, ellipseSize * HandSize);
                 return true;
             }
-            // Si no, false
+            // If not, return false
             else
             {
                 drawingContext.DrawEllipse(this.gesturePointBrush, null, goal_2D, ellipseSize * HandSize, ellipseSize * HandSize);
@@ -649,7 +670,13 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         }
 
 
-
+        /// <summary>
+        /// Draws an ellipse in the floor goal
+        /// </summary>
+        /// <param name="foot_left">position of the left foot</param>
+        /// /// <param name="foot_right">position of the right foot</param>
+        /// <param name="head">position of the head</param>
+        /// <param name="drawingContext">drawing context to draw to</param>
         private double DrawFloor(Joint foot_left, Joint foot_right, Joint head, DrawingContext drawingContext)
         {
 
@@ -658,11 +685,11 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             center_floor.Position.Y = (float)FloorCenterY;
             center_floor.Position.Z = (float)FloorCenterZ;
 
-            // Pasamos las coordenadas del mundo a coordenadas de pantalla
+            // Transform world coordinates to screen coordinates
             DepthSpacePoint depth_center_floor = this.coordinateMapper.MapCameraPointToDepthSpace(center_floor.Position);
             Point center_floor_2D = new Point(depth_center_floor.X, depth_center_floor.Y);
 
-            // Si el usuario está en su sitio, la elipse se dibuja verde
+            // If the user is in the good floor position, the ellipse change it color to green
             if ((foot_left.Position.X < FloorCenterX + 0.3 && foot_left.Position.X > FloorCenterX - 0.3) &&
                 (foot_right.Position.X < FloorCenterX + 0.3 && foot_right.Position.X > FloorCenterX - 0.3) &&
                 (foot_left.Position.Y < FloorCenterY + 0.3 && foot_left.Position.Y > FloorCenterY - 0.3) &&
@@ -671,23 +698,43 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 (foot_right.Position.Z < FloorCenterZ + 0.3 && foot_right.Position.Z > FloorCenterZ - 0.3))
             {
                 drawingContext.DrawEllipse(this.goalReachedBrush, null, center_floor_2D, 24, 8);
-                // Además devolvemos la altura del usuario
+                advicesText.Text = "¡No te muevas del sitio!";
+                // Return the user's height
                 return head.Position.Y;
             }
-            // Si no, se dibuja roja
+            // If not, the ellipse change it color to red
             else
             {
+                if (head.Position.X < FloorCenterX )
+                {
+                    if (head.Position.Z < FloorCenterZ)
+                    {
+                        advicesText.Text = "Muévete hacia la derecha y \n hacia atrás";
+                    }
+                    else if (head.Position.Z > FloorCenterZ)
+                    {
+                        advicesText.Text = "Muévete hacia la derecha y \n hacia delante";
+                    }
+                }
+                else if (head.Position.X > FloorCenterX)
+                {
+                    if (head.Position.Z < FloorCenterZ)
+                    {
+                        advicesText.Text = "Muévete hacia la izquierda y \n hacia atrás";
+                    }
+                    else if (head.Position.Z > FloorCenterZ)
+                    {
+                        advicesText.Text = "Muévete hacia la izquierda y \n hacia delante";
+                    }
+                }
+                
+                
                 drawingContext.DrawEllipse(this.goalNotReachedBrush, null, center_floor_2D, 24, 8);
             }
-            // Cuando el usuario no está en su sitio, devolvemos -10
+            // When the user is in a bad floor position, return -10
             return -10;
 
         }
-
-
-
-
-
 
         /// <summary>
         /// Draws indicators to show which edges are clipping body data
@@ -742,5 +789,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             this.StatusText = this.kinectSensor.IsAvailable ? Properties.Resources.RunningStatusText
                                                             : Properties.Resources.SensorNotAvailableStatusText;
         }
+
+        
     }
 }
